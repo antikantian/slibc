@@ -1,6 +1,5 @@
 #include "include/FaceDetection.h"
 #include <dlib/image_io.h>
-#include <boost/filesystem.hpp>
 
 using namespace slibc;
 
@@ -10,7 +9,18 @@ FaceDetection::FaceDetection(const char *model) {
 }
 
 // <--- Public interface ------------------------------------------->
+std::string FaceDetection::largestFace(std::string path, unsigned long cropSize) {
+    std::string op = "./";
+    std::string tmpName = this->getUniquePath();
+    return this->largestFace(path, cropSize, op, tmpName);
+}
+
 std::string FaceDetection::largestFace(std::string path, unsigned long cropSize, std::string outpath) {
+    std::string tmpName = this->getUniquePath();
+    return this->largestFace(path, cropSize, outpath, tmpName);
+}
+
+std::string FaceDetection::largestFace(std::string path, unsigned long cropSize, std::string outpath, std::string outfile) {
     sl::ImageDArray img;
     dlib::load_image(img, path);
 
@@ -34,11 +44,10 @@ std::string FaceDetection::largestFace(std::string path, unsigned long cropSize,
     sl::ImageDArray cropped;
     this->cropFace(landmarks, img, cropped, cropSize);
 
-    boost::filesystem::path temp = boost::filesystem::unique_path("%%%%-%%%%-%%%%-%%%%.jpg");
+    std::string op = (outpath.back() == '/') ? outpath : outpath + "/";
     std::ostringstream filepath;
-    filepath << outpath << "/" << temp.string();
+    filepath << op << outfile;
     dlib::save_jpeg(cropped, filepath.str());
-
     return filepath.str();
 }
 
