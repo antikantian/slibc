@@ -3,6 +3,7 @@
 
 #include "Types.h"
 #include <dlib/image_processing/frontal_face_detector.h>
+#include <boost/filesystem.hpp>
 
 namespace slibc
 {
@@ -12,7 +13,9 @@ namespace slibc
         // TODO: Train dataset
         // TODO: From URL
         FaceDetection(const char* model);
-        std::string largestFace(std::string path, unsigned long cropSize, std::string outpath = ".");
+        std::string largestFace(std::string path, unsigned long cropSize);
+        std::string largestFace(std::string path, unsigned long cropSize, std::string outpath);
+        std::string largestFace(std::string path, unsigned long cropSize, std::string outpath, std::string outfile);
 
     private:
         dlib::frontal_face_detector detector;
@@ -28,6 +31,11 @@ namespace slibc
             });
 
             return *maxBB;
+        }
+
+        std::string getUniquePath() {
+            boost::filesystem::path temp = boost::filesystem::unique_path("%%%%-%%%%-%%%%-%%%%.jpg");
+            return temp.string();
         }
 
         std::vector<sl::Rectangle> detectFaces(std::string filename);
