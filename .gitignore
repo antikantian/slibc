@@ -32,3 +32,5 @@
 /bin/
 /external/dlib/
 /lib/
+.idea/
+external/
