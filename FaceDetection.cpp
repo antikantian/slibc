@@ -46,7 +46,7 @@ std::string FaceDetection::largestFace(std::string path, unsigned long cropSize,
 
     std::string op = (outpath.back() == '/') ? outpath : outpath + "/";
     std::ostringstream filepath;
-    filepath << op << outfile;
+    filepath << op << outfile << ".jpg";
     dlib::save_jpeg(cropped, filepath.str());
     return filepath.str();
 }

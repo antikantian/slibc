@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8.4)
 set(CMAKE_MACOSX_RPATH 1)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -std=c++11")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY  "${CMAKE_SOURCE_DIR}/bin")
 #set(CMAKE_LIBRARY_OUTPUT_DIRECTORY  "${CMAKE_SOURCE_DIR}/lib")
 
@@ -12,6 +12,10 @@ cmake_policy(SET CMP0048 OLD)
 
 include(external/dlib/dlib/cmake NO_POLICY_SCOPE)
 set(DLIB_NO_GUI_SUPPORT ON CACHE "" INTERNAL FORCE)
+set(USE_AVX_INSTRUCTIONS ON CACHE "" INTERNAL FORCE)
+
+find_package(CURL)
+include_directories(${CURL_INCLUDE_DIRS})
 
 find_package(Boost COMPONENTS filesystem)
 include_directories(${Boost_INCLUDE_DIR})
@@ -21,10 +25,13 @@ set(source_files
     FaceDetection.cpp)
 
 add_library(slibc SHARED ${source_files})
-target_link_libraries(slibc dlib ${Boost_LIBRARIES})
+target_link_libraries(slibc dlib ${Boost_LIBRARIES} ${CURL_LIBRARIES})
 
 add_executable(maxface tools/maxface.cpp)
 target_link_libraries(maxface slibc)
+
+add_executable(trainshape tools/trainshape.cpp)
+target_link_libraries(trainshape dlib)
 
 find_package(Swig REQUIRED)
 include(UseSwig)

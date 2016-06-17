@@ -4,6 +4,8 @@
 #include "Swig.h"
 #include "Types.h"
 #include "FaceDetection.h"
+#include <dlib/image_loader/image_loader.h>
+#include <dlib/image_saver/image_saver.h>
 %}
 
 // Convert all C++ exceptions into java.lang.Exception
@@ -17,11 +19,31 @@
     }
 }
 
+%exception {
+    try {
+        $action
+    } catch(dlib::image_save_error& e) {
+        jclass clazz = jenv->FindClass("co/quine/slibj/exceptions/ImageSaveErrorException");
+        jenv->ThrowNew(clazz, e.what());
+        return $null;
+    }
+}
+
+%exception {
+    try {
+        $action
+    } catch(dlib::image_load_error& e) {
+        jclass clazz = jenv->FindClass("co/quine/slibj/exceptions/ImageLoadErrorException");
+        jenv->ThrowNew(clazz, e.what());
+        return $null;
+    }
+}
+
 %exception largestFace {
     try {
         $action
     } catch(std::runtime_error& e) {
-        jclass clazz = jenv->FindClass("co/quine/slibj/NoFacesFoundException");
+        jclass clazz = jenv->FindClass("co/quine/slibj/exceptions/NoFacesFoundException");
         jenv->ThrowNew(clazz, e.what());
         return $null;
     }
@@ -34,7 +56,7 @@ import java.io.*;
 %pragma(java) jniclasscode=%{
 static {
     try {
-        LoadLib.fromJar("/resources/lib/libslibj.jnilib");
+        LoadLib.fromJar("/lib/libslibj.jnilib");
     } catch (IOException e) {
         try {
             File model = new File("src/main/resources/lib/libslibj.jnilib");
