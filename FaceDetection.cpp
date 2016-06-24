@@ -22,10 +22,15 @@ std::string FaceDetection::largestFace(std::string path, unsigned long cropSize,
 
 std::string FaceDetection::largestFace(std::string path, unsigned long cropSize, std::string outpath, std::string outfile) {
     sl::ImageDArray img;
-    dlib::load_image(img, path);
+    try{
+        dlib::load_image(img, path);
+    } catch (dlib::image_load_error& e) {
+        if (e.info.find("Unsupported number of colors") != std::string::npos) {
+            throw dlib::image_load_error("Colorspace not RGB");
+        } else throw dlib::image_load_error("Error loading image");
+    }
 
     std::vector<sl::Rectangle> faces = this->detectFaces(img);
-
     sl::ObjectModel landmarks;
 
     if (faces.size() == 1) {
@@ -33,8 +38,13 @@ std::string FaceDetection::largestFace(std::string path, unsigned long cropSize,
     } else if (faces.size() > 1) {
         landmarks = this->modelLandmarks(img, this->maxRect(faces));
     } else {
-        dlib::pyramid_up(img);
-        std::vector<sl::Rectangle> upsampled = this->detectFaces(img);
+        std::vector<sl::Rectangle> upsampled;
+        int i = 1;
+        while ((upsampled.size() < 1) && (i < 3)) {
+            dlib::pyramid_up(img);
+            upsampled = this->detectFaces(img);
+            i++;
+        }
 
         if (upsampled.size() > 0) {
             landmarks = this->modelLandmarks(img, this->maxRect(upsampled));

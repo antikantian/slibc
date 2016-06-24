@@ -4,6 +4,7 @@
 #include "Swig.h"
 #include "Types.h"
 #include "FaceDetection.h"
+#include "ImageConversion.h"
 #include <dlib/image_loader/image_loader.h>
 #include <dlib/image_saver/image_saver.h>
 %}
@@ -46,6 +47,14 @@
         jclass clazz = jenv->FindClass("co/quine/slibj/exceptions/NoFacesFoundException");
         jenv->ThrowNew(clazz, e.what());
         return $null;
+    } catch(dlib::image_load_error& e) {
+        jclass clazz = jenv->FindClass("co/quine/slibj/exceptions/ImageLoadErrorException");
+        jenv->ThrowNew(clazz, e.what());
+        return $null;
+    } catch(dlib::image_save_error& e) {
+        jclass clazz = jenv->FindClass("co/quine/slibj/exceptions/ImageSaveErrorException");
+        jenv->ThrowNew(clazz, e.what());
+        return $null;
     }
 }
 
@@ -73,3 +82,4 @@ static {
 %include "include/Types.h"
 %include "include/Swig.h"
 %include "include/FaceDetection.h"
+%include "include/ImageConversion.h"

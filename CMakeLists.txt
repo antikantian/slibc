@@ -14,24 +14,21 @@ include(external/dlib/dlib/cmake NO_POLICY_SCOPE)
 set(DLIB_NO_GUI_SUPPORT ON CACHE "" INTERNAL FORCE)
 set(USE_AVX_INSTRUCTIONS ON CACHE "" INTERNAL FORCE)
 
-find_package(CURL)
-include_directories(${CURL_INCLUDE_DIRS})
+find_library(s3 aws-cpp-sdk-s3)
 
 find_package(Boost COMPONENTS filesystem)
 include_directories(${Boost_INCLUDE_DIR})
 
+find_package(OpenCV 3)
+include_directories(${OpenCV_INCLUDE_DIR})
+
 include_directories(${CMAKE_SOURCE_DIR}/include)
 set(source_files
-    FaceDetection.cpp)
+    FaceDetection.cpp
+    ImageConversion.cpp)
 
 add_library(slibc SHARED ${source_files})
-target_link_libraries(slibc dlib ${Boost_LIBRARIES} ${CURL_LIBRARIES})
-
-add_executable(maxface tools/maxface.cpp)
-target_link_libraries(maxface slibc)
-
-add_executable(trainshape tools/trainshape.cpp)
-target_link_libraries(trainshape dlib)
+target_link_libraries(slibc dlib ${Boost_LIBRARIES} ${OpenCV_LIBS})
 
 find_package(Swig REQUIRED)
 include(UseSwig)
